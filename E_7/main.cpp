@@ -31,7 +31,7 @@ int main()
     }
 
 
-    cout << value << endl;
+    cout << value - 1 << endl;
 
     return 0;
 }
