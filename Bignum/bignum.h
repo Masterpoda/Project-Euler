@@ -26,6 +26,7 @@ class Bignum {
     unsigned long long size();
 
     Bignum operator + (Bignum rhs);
+    Bignum operator * (Bignum rhs);
     bool operator > (Bignum rhs);
     bool operator < (Bignum rhs);
     bool operator >= (Bignum rhs);
@@ -78,6 +79,43 @@ Bignum Bignum::operator + (Bignum rhs)
 
     return *this;
 }
+
+Bignum Bignum::operator * (Bignum rhs)
+{
+    unsigned int size;
+    vector<Bignum> multiples;
+    Bignum sum, multiple;
+
+    if(holder.size() > rhs.size())
+    {
+        size = holder.size();
+        rhs.holder.resize(size);//makes adding simpler
+    }
+    else
+    {
+        size = rhs.size();
+        holder.resize(size);//makes adding simpler
+    }
+
+    sum.holder.resize(size);
+
+
+    for(unsigned int i = 0; i < result.size(); i++)
+    {
+        for(unsigned int j = 0; j < size; j++)
+        {
+            multiple = holder[i]*rhs.holder[j];
+            multiples.push_back(multiples);
+        }
+    }
+
+
+    holder = sum;
+
+    return *this;
+}
+
+
 
 /*
 Bignum Bignum::operator - (Bignum rhs)
