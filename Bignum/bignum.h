@@ -19,13 +19,16 @@ class Bignum {
         holder.clear();
     }
 
-    vector<unsigned int> holder; //holding vector for "digits" of a base 9999 number
-    bool positive = true; // sign bit
-    void print(); //print
-    string getstring(); //returns a string with the number's value
-    unsigned long long size();
+    vector<unsigned int> holder;    //holding vector for "digits" of a base 9999 number
+    bool positive = true;           //sign bit
+    void print();                   //print numeric value
+    void held();                    //print space-separated contents of holder
+    string getstring();             //returns a string with the number's value
+    unsigned long long size();      //Returns the number of digits in the number
+
 
     Bignum operator + (Bignum rhs);
+    Bignum operator += (Bignum rhs);
     Bignum operator * (Bignum rhs);
     bool operator > (Bignum rhs);
     bool operator < (Bignum rhs);
@@ -80,37 +83,58 @@ Bignum Bignum::operator + (Bignum rhs)
     return *this;
 }
 
+Bignum Bignum::operator += (Bignum rhs)
+{
+    holder = (rhs + *this).holder;
+
+    return *this;
+}
+
+
+
 Bignum Bignum::operator * (Bignum rhs)
 {
-    unsigned int size;
+    unsigned int num1size, num2size;
     vector<Bignum> multiples;
-    Bignum sum, multiple;
+    Bignum sum, multiple; //sum holds the sum of the multiples
+    vector<unsigned int>::iterator it;
 
-    if(holder.size() > rhs.size())
+    num1size = holder.size();
+
+    num2size = rhs.size();
+
+
+    cout<<"Multiples List:"<<endl;
+
+    for(unsigned int i = 0; i < num1size; i++)
     {
-        size = holder.size();
-        rhs.holder.resize(size);//makes adding simpler
-    }
-    else
-    {
-        size = rhs.size();
-        holder.resize(size);//makes adding simpler
-    }
-
-    sum.holder.resize(size);
-
-
-    for(unsigned int i = 0; i < result.size(); i++)
-    {
-        for(unsigned int j = 0; j < size; j++)
+        for(unsigned int j = 0; j < num2size; j++)
         {
             multiple = holder[i]*rhs.holder[j];
-            multiples.push_back(multiples);
+            //append zeros to multiple
+            for(unsigned int k = 0; k < i; k++)
+            {
+                multiple.holder.push_back(0);
+            }
+            multiple.held();
+            multiples.push_back(multiple);
         }
+
+        //sum them up here
+        for(unsigned int k = 0; k < multiples.size(); k++)
+        {
+
+            cout<<"Sum is: ";
+            sum += multiples[k];
+            sum.held();
+        }
+        multiples.clear();
+
     }
+    cout<<endl;
 
 
-    holder = sum;
+    holder = sum.holder;
 
     return *this;
 }
@@ -282,12 +306,18 @@ Bignum Bignum::operator = (Bignum rhs)
 Bignum Bignum::operator = (string rhs)
 {
 
-    int iters = rhs.length()/4 + 1;//calculate how many times we need to parse 4 digits
+    int iters;//calculate how many times we need to parse 4 digits
+    int size = rhs.length();
+
+    if(size %4 == 0)
+        iters = size/4;
+    else
+        iters = size/4 + 1;
 
     holder.clear();
     holder.resize(iters);
 
-    int size = rhs.length();
+
 
     if(rhs[0] == '-')
     {
@@ -298,20 +328,29 @@ Bignum Bignum::operator = (string rhs)
 
     for(int i = 0; i < iters; i++)
     {
-        if(size - i*4 > 0)
-            holder[i] = stoi(rhs.substr(i*4, 4));//adding 4 digits at a time.
+        if(size - (i+1)*4 >= 0)
+            holder[iters - (i+1)] = stoi(rhs.substr((size - (i + 1)*4), 4));//adding 4 digits at a time. THROWS EXCEPTION
         else
-            holder[i] = stoi(rhs.substr(i*4));//adding the rest of the string.
+            holder[iters - (i+1)] = stoi(rhs.substr(0, size % 4));//adding the rest of the string.
     }
 
     return *this;
 }
 
+
+//mistake here
 Bignum Bignum::operator = (const unsigned long long rhs)
 {
     string newval;
     newval = to_string(rhs);
-    int iters = (floor(log10(rhs)))/4 + 1;//calculate how many times we need to parse 4 digits
+    int size = newval.length();
+    int iters;
+
+    //calculate how many times we need to parse 4 digits
+    if(size %4 == 0)
+        iters = size/4;
+    else
+        iters = size/4 + 1;
 
     if(rhs < 0)
         positive = false;
@@ -319,16 +358,19 @@ Bignum Bignum::operator = (const unsigned long long rhs)
     holder.clear();
     holder.resize(iters);
 
-    int size = newval.length();
-
 
     for(int i = 0; i < iters; i++)
     {
-        if(size - i*4 > 0)
-            holder[i] = stoi(newval.substr(i*4, 4));//adding 4 digits at a time.
+        if(size - (i+1)*4 >= 0)
+        {
+            holder[iters - (i+1)] = stoi(newval.substr((size - (i + 1)*4), 4));//adding 4 digits at a time. THROWS EXCEPTION
+        }
         else
-            holder[i] = stoi(newval.substr(i*4));//adding the rest of the string.
+        {
+            holder[iters - (i+1)] = stoi(newval.substr(0, size % 4));//adding the rest of the string.
+        }
     }
+    cout<<endl;
 
     return *this;
 }
@@ -337,7 +379,27 @@ void Bignum::print()
 {
     for(unsigned int i = 0; i < holder.size(); i++) //printing out each
     {
+        if(i != 0) //dont need leading zeros if we're at the leading digit
+        {
+            if(holder[i]< 10)
+                cout<<"000";
+            else if ( holder[i]< 100)
+                cout<<"00";
+            else if ( holder[i]< 1000)
+                cout<<"0";
+        }
+
         cout<<holder[i];
+    }
+    cout<<endl;
+}
+
+//Displays contents of holder
+void Bignum::held()
+{
+    for(unsigned int i = 0; i< holder.size(); i++)
+    {
+        cout<<holder[i]<< "  ";
     }
     cout<<endl;
 }
