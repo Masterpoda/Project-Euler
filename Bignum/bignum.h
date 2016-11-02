@@ -44,38 +44,86 @@ class Bignum {
 
 Bignum Bignum::operator + (Bignum rhs)
 {
-    unsigned int size;
-    unsigned long long carry = 0;
+    unsigned int size = 0;
+    unsigned long long carry = 0, temp = 0;
+    int diff = 0;
     vector<unsigned int> result;
 
-    if(holder.size() > rhs.size())
+    if(holder.size() == rhs.size())
     {
-        size = holder.size();
-        rhs.holder.resize(size);//makes adding simpler
+        size = holder.size() + 1;
+    }
+    else if(holder.size() > rhs.size())
+    {
+        size = holder.size() + 1;
     }
     else
     {
-        size = rhs.size();
-        holder.resize(size);//makes adding simpler
+        size = rhs.size() +1 ;
     }
 
-    result.resize(size);
+    //cout<<"Result size: "<<size<<endl;
 
-    for(unsigned int i = 0; i < result.size(); i++)
+    result.resize(size);
+    diff = abs((int)holder.size() - (int)rhs.holder.size());
+    //cout<<"diff is: "<<diff<<endl;
+
+    for(int i = size-2; i >= 0; i--)
     {
-        if(holder[i] + rhs.holder[i] + carry <= 9999)
+        if(holder.size() >= rhs.holder.size())
         {
-            result[i] = holder[i] + rhs.holder[i] + carry;
-            carry = 0;
+
+            if(i - diff < 0)
+            {
+                temp = holder[i] + carry;
+            }
+            else
+            {
+                temp = holder[i] + rhs.holder[i - diff] + carry;
+            }
+
+            if(temp <= 9999)
+            {
+                result[i] = temp;
+                carry = 0;
+            }
+            else
+            {
+                result[i] = (temp) % 10000;
+                carry = 1;
+            }
         }
         else
         {
-            result[i] = (holder[i] + rhs.holder[i] + carry) % 9999;
-            carry = 1;
-            if(i == result.size())
-                result.push_back(0);
+            if(i - diff < 0)
+            {
+                temp = rhs.holder[i] + carry;
+                //cout<<"x"<<endl;
+            }
+            else
+            {
+                temp = holder[i - diff] + rhs.holder[i] + carry;
+                //cout<<"y"<<endl;
+            }
+            //cout<<"Temp is "<<temp<<endl;
+
+            if(temp <= 9999)
+            {
+                result[i] = temp;
+                carry = 0;
+            }
+            else
+            {
+                result[i] = (temp) % 10000;
+                carry = 1;
+            }
         }
+
+
     }
+
+    if(result.back() == 0)
+        result.pop_back();
 
 
     holder = result;
@@ -104,18 +152,19 @@ Bignum Bignum::operator * (Bignum rhs)
     num2size = rhs.size();
 
 
-    cout<<"Multiples List:"<<endl;
 
-    for(unsigned int i = 0; i < num1size; i++)
+    for(int i = num1size - 1; i >= 0; i--)
     {
         for(unsigned int j = 0; j < num2size; j++)
         {
+            cout<<"multiplying "<<holder[i]<<" by "<< rhs.holder[j];
             multiple = holder[i]*rhs.holder[j];
-            //append zeros to multiple
-            for(unsigned int k = 0; k < i; k++)
+            //append zeros to multiple ERROR HERE
+            for(unsigned int k = 0; k < num1size - (i + 1); k++)
             {
                 multiple.holder.push_back(0);
             }
+            cout<< "multiple "<< j+1 << " is ";
             multiple.held();
             multiples.push_back(multiple);
         }
@@ -124,8 +173,10 @@ Bignum Bignum::operator * (Bignum rhs)
         for(unsigned int k = 0; k < multiples.size(); k++)
         {
 
-            cout<<"Sum is: ";
-            sum += multiples[k];
+            cout<<"Sum before add is: ";
+            sum.held();
+            sum = sum + multiples[k];
+            cout<<"Sum after add is: ";
             sum.held();
         }
         multiples.clear();
